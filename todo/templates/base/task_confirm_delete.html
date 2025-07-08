@@ -1,0 +1,8 @@
+<h1>You Wanna Confirm?</h1>
+<a href="{% url 'tasklist' %}">Go Back</a>
+
+<form method="POST">
+    {% csrf_token %}
+    <p>Are ou sure you wanna delete that task? {{ task.title }}</p>
+    <input type="submit" value="Delete">
+</form>
