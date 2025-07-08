@@ -19,12 +19,15 @@ class TaskList(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['tasks'] = context['tasks'].filter(user=self.request.user)
         context['count'] = context['tasks'].filter(complete=False).count()
-        return context
-    
 
-class TaskDetail(LoginRequiredMixin, DetailView):
-    model = Task
-    context_object_name = 'task'
+
+        search_input = self.request.GET.get('search') or ''
+        if search_input:
+            context['tasks'] = context['tasks'].filter(title__icontains=search_input)
+
+        context['search_input'] = search_input
+
+        return context
 
 
 class TaskCreate(LoginRequiredMixin, CreateView):
@@ -37,7 +40,6 @@ class TaskCreate(LoginRequiredMixin, CreateView):
         return super(TaskCreate, self).form_valid(form)
 
 
-
 class TaskEdit(LoginRequiredMixin, UpdateView):
     model = Task
     fields = ['title', 'description', 'complete']
@@ -45,7 +47,8 @@ class TaskEdit(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super(TaskCreate, self).form_valid(form)
+        return super(TaskEdit, self).form_valid(form)
+
 
 class TaskDelete(LoginRequiredMixin, DeleteView):
     model = Task
